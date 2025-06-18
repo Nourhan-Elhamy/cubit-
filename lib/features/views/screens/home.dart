@@ -1,45 +1,96 @@
+import 'package:cubit_task/core/app_images.dart';
+import 'package:cubit_task/features/data/cubit_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../widgets/cubit.dart';
-
-
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+   HomeScreen({super.key});
+
+  final List<String> backgrounds =  [
+    APPImages.image,
+    APPImages.image2,
+    APPImages.image,
+    APPImages.image2,  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: BlocBuilder<TestCubitStates, TestCubit>(
-          builder: (context, state) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  state.text,
-                  style: const TextStyle(fontSize: 24),
+      body: BlocBuilder<BackgroundCubit, String>(
+        builder: (context, bgPath) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox.expand(
+                child: Image.asset(
+                  bgPath,
+                  fit: BoxFit.cover,
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  height: 100,
-                  width: 100,
-                  color: state.color,
+              ),
+              BlocBuilder<CounterCubit, int>(
+                builder: (context, count) => Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.purple.withOpacity(0.2),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text('$count',
+                      style: const TextStyle(fontSize: 28, color: Colors.purple)),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  "Count = ${state.count}",
-                  style: const TextStyle(fontSize: 20),
+              ),
+              Positioned(
+                right: 50,
+                bottom: 200,
+                child: GestureDetector(
+                  onTap: () => context.read<CounterCubit>().increment(),
+                  child: const CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.fingerprint, color: Colors.purple),
+                  ),
                 ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<TestCubitStates>().updateState();
-                  },
-                  child: const Text("Change State"),
-                )
-              ],
-            );
-          },
-        ),
+              ),
+              Positioned(
+                left: 50,
+                bottom: 200,
+                child: GestureDetector(
+                  onTap: () => context.read<CounterCubit>().reset(),
+                  child: const CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.replay, color: Colors.purple),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 80,
+                child: Row(
+                  children: List.generate(backgrounds.length, (index) {
+                    return GestureDetector(
+                      onTap: () => context
+                          .read<BackgroundCubit>()
+                          .changeBackground(backgrounds[index]),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage(backgrounds[index]),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              )
+            ],
+          );
+        },
       ),
     );
   }
